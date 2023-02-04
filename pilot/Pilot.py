@@ -72,7 +72,7 @@ def loss_fun(criteria, num, Rss, k):
         )
     )(
         nb.int64[:],
-        nb.typeof(["a", "b"]),
+        nb.types.ListType(nb.types.unicode_type),
         nb.int64,
         nb.int64[:, :],
         nb.float64[:, :],
@@ -548,6 +548,7 @@ class PILOT(object):
             [k[key] for key in self.regression_nodes if key not in ["con", "lin"]],
             dtype=np.int64,
         )
+        self.regression_nodes = nb.typed.List(self.regression_nodes)
 
     def stop_criterion(self, tree_depth, y):
         """
@@ -735,8 +736,9 @@ class PILOT(object):
             The predictors.
         y: Array-like objects, usually pandas.DataFrame or numpy arrays.
             The responses.
-        categorical: An array of column indices of categorical variables.
-                     We assume that they are integer valued.
+        categorical: ndarray,
+            1D array of column indices of categorical variables.
+            We assume that they are integer valued.
 
         return:
         -------
@@ -802,14 +804,17 @@ class PILOT(object):
 
         parameters:
         -----------
-        model: The tree objects
-        x: Array-like objects, new sample need to be predicted
-        maxd: The maximum depth to be considered for prediction,
-              can be less than the true depth of the tree.
+        model: The tree objects,
+            by default we use the model tree fit on the data.
+        x: Array-like objects, pandas.DataFrame or numpy arrays,
+            new sample need to be predicted
+        maxd: int,
+          the maximum depth to be considered for prediction,
+          can be less than the true depth of the tree.
 
         return:
         -------
-        y_hat: numpy.array
+        y_hat: ndarray,
                the predicted y values
         """
         y_hat = []
